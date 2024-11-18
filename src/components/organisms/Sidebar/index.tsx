@@ -14,13 +14,13 @@ import { Button } from "@/components/atoms/Button";
 import { SIDEBAR_ITEMS } from "@/utils/sidebarItems";
 import React from "react";
 
-interface Props {
+type SidebarProps = {
   role: string;
   name: string;
   image: string | null;
 }
 
-const Index = ({ role, name, image }: Props) => {
+const Index = ({ role, name, image }: SidebarProps) => {
   // Filter sidebar items based on role
   const filteredItems = SIDEBAR_ITEMS.filter((item) => item.roles.includes(role));
 
