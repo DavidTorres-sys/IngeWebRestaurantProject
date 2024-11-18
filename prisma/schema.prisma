@@ -13,7 +13,6 @@ model User {
   email          String         @unique
   email_verified DateTime?
   image          String?
-
   accounts       Account[]
   sessions       Session[]
   orders         Order[]

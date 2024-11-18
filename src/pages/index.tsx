@@ -1,24 +1,22 @@
-import { PrismaClient } from "@prisma/client";
-import safeJsonStringify from "safe-json-stringify";
+import { SidebarProvider, SidebarTrigger } from "@/components/molecules/SidebarSection";
+import { AppSidebar } from "@/components/organisms/sidebar";
+import { sign } from "crypto";
 import { useSession, signIn } from "next-auth/react";
 
-export async function getServerSideProps() {
-  const prisma = new PrismaClient();
-  const users = await prisma.user.findMany();
-  console.log(safeJsonStringify(users));
-  return { props: { users: safeJsonStringify(users) } };
-}
-
-export default function Home({ users }: any) {
-  const { data: session } = useSession();
-
-  if (!session) {
-    signIn('auth0');
-  }
-  console.log(users);
+export default function Home({ children }: { children: React.ReactNode }) {
+  // const { data: session, status } = useSession();
+  // if (!session) {
+  //   signIn('auth0');
+  // }
   return (
     <div>
-      <h1>Hello Robinsón Coronado</h1>
+      <SidebarProvider>
+        <AppSidebar />
+        <main>
+          <SidebarTrigger />
+          {children}
+        </main>
+      </SidebarProvider>
     </div>
   );
 }
