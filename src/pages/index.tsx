@@ -1,17 +1,17 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/molecules/SidebarSection";
-import { AppSidebar } from "@/components/organisms/sidebar";
+import { AppSidebar } from "@/components/organisms/Sidebar";
 import { sign } from "crypto";
 import { useSession, signIn } from "next-auth/react";
 
 export default function Home({ children }: { children: React.ReactNode }) {
-  // const { data: session, status } = useSession();
-  // if (!session) {
-  //   signIn('auth0');
-  // }
+  const { data: session, status } = useSession();
+  if (!session) {
+    signIn('auth0');
+  }
   return (
     <div>
       <SidebarProvider>
-        <AppSidebar />
+        <AppSidebar role={""} name={""} image={null} />
         <main>
           <SidebarTrigger />
           {children}
