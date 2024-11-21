@@ -1,50 +1,54 @@
-// import 'reflect-metadata';
-// import 'ts-tiny-invariant';
-// import { ApolloServer } from 'apollo-server-micro';
-// import { customTypes } from '@/graphql/custom/types';
-// // "-/" Eso hacer parte de una configuración de rutas en tsconfig
-// import { types } from '@/prisma/generated/graphql/types';
-// import { PrismaClient } from '@prisma/client';
-// import prisma from '@/config/prisma';
-// import Cors from 'micro-cors';
-// import { customResolvers } from '@/graphql/custom/resolvers';
-// import { IncomingMessage, ServerResponse } from 'http';
+import 'reflect-metadata';
+import 'ts-tiny-invariant';
+import { ApolloServer } from 'apollo-server-micro';
+import { PrismaClient } from '@prisma/client';
+import { resolvers } from '-/prisma/generated/type-graphql';
+import prisma from '@/config/prisma';
+import Cors from 'micro-cors';
+import { IncomingMessage, ServerResponse } from 'http';
+import { buildSchema } from 'type-graphql';
 
-// const cors = Cors({
-//   allowMethods: ['POST', 'OPTIONS', 'GET', 'HEAD'],
-// });
+const cors = Cors({
+  allowMethods: ['POST', 'OPTIONS', 'GET', 'HEAD'],
+});
 
-// interface Context {
-//   prisma: PrismaClient;
-// }
+interface Context {
+  prisma: PrismaClient;
+}
 
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-// const functionHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-//   const apolloServer = new ApolloServer({
-//     context: (): Context => ({ prisma }),
-//     typeDefs: [...types, ...customTypes],
-//     resolvers: [...resolvers, ...customResolvers],
-//     persistedQueries: false, // This disables persisted queries
-//     cache: 'bounded', // This sets up a bounded cache
-//     introspection: process.env.NODE_ENV !== 'production',
-//   });
-//   const startServer = apolloServer.start();
-//   await startServer;
-//   return apolloServer.createHandler({
-//     path: '/api/graphql',
-//   })(req, res);
-// };
+const functionHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
+  const schema = await buildSchema({
+    resolvers,
+    validate: false,
+  });
 
-// export default cors((req, res) => {
-//   if (req.method === 'OPTIONS') {
-//     res.end();
-//     return false;
-//   }
+  const apolloServer = new ApolloServer({
+    context: (): Context => ({ prisma }),
+    schema,
+    persistedQueries: false,
+    cache: 'bounded',
+    introspection: process.env.NODE_ENV !== 'production',
+  });
 
-//   return functionHandler(req, res);
-// });
+  // Start the server asynchronously
+  await apolloServer.start();
+
+  // Return the handler function
+  const handler = apolloServer.createHandler({ path: '/api/graphql' });
+  return handler(req, res);
+};
+
+export default cors(async (req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.end();
+    return;
+  }
+
+  await functionHandler(req, res);
+});

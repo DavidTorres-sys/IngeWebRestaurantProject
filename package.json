@@ -48,6 +48,8 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.3.1",
     "graphql": "^16.9.0",
+    "graphql-fields": "^2.0.3",
+    "graphql-scalars": "^1.23.0",
     "input-otp": "^1.4.1",
     "lucide-react": "^0.460.0",
     "micro-cors": "^0.1.1",
@@ -57,13 +59,17 @@
     "react": "19.0.0-rc-66855b96-20241106",
     "react-day-picker": "8.10.1",
     "react-dom": "19.0.0-rc-66855b96-20241106",
-    "safe-json-stringify": "^1.2.0",
     "react-hook-form": "^7.53.2",
     "react-resizable-panels": "^2.1.6",
     "recharts": "^2.13.3",
+    "reflect-metadata": "^0.2.2",
+    "safe-json-stringify": "^1.2.0",
     "sonner": "^1.7.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "tslib": "^2.6.2",
+    "type-graphql": "^2.0.0-rc.1",
+    "typegraphql-prisma": "^0.27.2",
     "vaul": "^1.1.1",
     "zod": "^3.23.8"
   },
@@ -79,6 +85,8 @@
     "postcss": "^8",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.4.0",
+    "typegraphql-prisma": "^0.27.2",
     "typescript": "^5"
   }
 }

@@ -3,13 +3,20 @@ import {
   SidebarTrigger,
 } from "@/components/molecules/SidebarSection";
 import { AppSidebar } from "@/components/organisms/Sidebar";
-import { sign } from "crypto";
+import { useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 
 export default function Home({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (!session && status !== "loading") {
+      signIn("auth0");
+    }
+  }, [session, status]);
+
   if (!session) {
-    signIn('auth0');
+    return <p>Loading...</p>;
   }
 
   return (
