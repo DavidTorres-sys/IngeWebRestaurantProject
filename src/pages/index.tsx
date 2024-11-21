@@ -6,23 +6,21 @@ import { AppSidebar } from "@/components/organisms/Sidebar";
 import { useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 
-export default function Home({ children }: { children: React.ReactNode }) {
+export default function Home({ children }: any) {
   const { data: session, status } = useSession();
-
   useEffect(() => {
     if (!session && status !== "loading") {
       signIn("auth0");
     }
   }, [session, status]);
 
-  if (!session) {
-    return <p>Loading...</p>;
-  }
+  const userName = session?.user.name || "Guest";
+  const UserImage = session?.user.image || null;
 
   return (
     <div>
       <SidebarProvider>
-        <AppSidebar role="" image={null} name="" />
+        <AppSidebar role="admin" image={UserImage} name={userName} />
         <main>
           <SidebarTrigger />
           {children}

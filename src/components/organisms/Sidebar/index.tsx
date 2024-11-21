@@ -1,3 +1,4 @@
+import { signOut } from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +13,6 @@ import {
 import { UserDetailsSidebar } from "@/components/molecules/UserDetailsSidebar";
 import { Button } from "@/components/atoms/Button";
 import { SIDEBAR_ITEMS } from "@/utils/sidebarItems";
-import React from "react";
 
 type SidebarProps = {
   role: string;
@@ -21,6 +21,16 @@ type SidebarProps = {
 }
 
 const Index = ({ role, name, image }: SidebarProps) => {
+  const logout = async () => {
+    try {
+      await signOut({
+        // TODO: Update the callback URL
+        callbackUrl: "/",
+      });
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
   // Filter sidebar items based on role
   const filteredItems = SIDEBAR_ITEMS.filter((item) => item.roles.includes(role));
 
@@ -28,10 +38,10 @@ const Index = ({ role, name, image }: SidebarProps) => {
     <Sidebar>
       <div className="p-5 h-full flex flex-col">
         <SidebarHeader>
-          <UserDetailsSidebar 
-            userImage={image} 
-            userName={name} 
-            userRole={role} 
+          <UserDetailsSidebar
+            userImage={image}
+            userName={name}
+            userRole={role}
           />
         </SidebarHeader>
         <SidebarContent className="flex-1 overflow-auto">
@@ -53,7 +63,7 @@ const Index = ({ role, name, image }: SidebarProps) => {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="mt-auto sticky bottom-0 w-full">
-          <Button variant="secondary" size="lg">
+          <Button onClick={logout} variant="secondary" size="lg">
             Logout
           </Button>
         </SidebarFooter>

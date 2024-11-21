@@ -9,7 +9,7 @@ const options: NextAuthOptions = {
     async session({ session, user }: any) {
       const newSession = (await prisma.session.findFirst({
         where: {
-          user_id: user.id,
+          userId: user.id,
         },
         include: {
           user: true,
@@ -18,6 +18,7 @@ const options: NextAuthOptions = {
           expires: "desc",
         },
       })) as any;
+      console.log(newSession);
       return {
         ...session,
         user: newSession?.user,
