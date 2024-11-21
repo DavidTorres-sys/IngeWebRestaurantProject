@@ -2,11 +2,13 @@ import 'reflect-metadata';
 import 'ts-tiny-invariant';
 import { ApolloServer } from 'apollo-server-micro';
 import { PrismaClient } from '@prisma/client';
-import { resolvers } from '-/prisma/generated/type-graphql';
+import { resolvers } from '-/prisma/generated/graphql/resolvers';
+import { customResolvers } from '-/graphql/custom/resolvers';
+import { customTypes } from '-/graphql/custom/types';
+import { types } from '-/prisma/generated/graphql/types';
 import prisma from '@/config/prisma';
 import Cors from 'micro-cors';
 import { IncomingMessage, ServerResponse } from 'http';
-import { buildSchema } from 'type-graphql';
 
 const cors = Cors({
   allowMethods: ['POST', 'OPTIONS', 'GET', 'HEAD'],
@@ -23,32 +25,26 @@ export const config = {
 };
 
 const functionHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
-  const schema = await buildSchema({
-    resolvers,
-    validate: false,
-  });
-
   const apolloServer = new ApolloServer({
     context: (): Context => ({ prisma }),
-    schema,
+    typeDefs: [...types, ...customTypes],
+    resolvers: [...resolvers, ...customResolvers],
     persistedQueries: false,
     cache: 'bounded',
     introspection: process.env.NODE_ENV !== 'production',
   });
-
-  // Start the server asynchronously
-  await apolloServer.start();
-
-  // Return the handler function
-  const handler = apolloServer.createHandler({ path: '/api/graphql' });
-  return handler(req, res);
+  const startServer = apolloServer.start();
+  await startServer;
+  return apolloServer.createHandler({
+    path: '/api/graphql',
+  })(req, res);
 };
 
-export default cors(async (req, res) => {
+export default cors((req, res) => {
   if (req.method === 'OPTIONS') {
     res.end();
-    return;
+    return false;
   }
 
-  await functionHandler(req, res);
+  return functionHandler(req, res);
 });
