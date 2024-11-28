@@ -1,7 +1,7 @@
 import {
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"; 
+} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/organisms/Sidebar";
 import { useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
@@ -21,8 +21,8 @@ export default function Home({ children }: any) {
     <div>
       <SidebarProvider>
         <AppSidebar role="admin" image={UserImage} name={userName} />
+        <SidebarTrigger />
         <main>
-          <SidebarTrigger />
           {children}
         </main>
       </SidebarProvider>

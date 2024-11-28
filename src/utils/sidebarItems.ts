@@ -15,9 +15,9 @@ export const SIDEBAR_ITEMS = [
   },
   {
     title: "Users",
-    url: "#",
+    url: "/users",
     icon: Users,
-    roles: ["admin"], // Only accessible by admin
+    roles: ["admin"],
   },
   {
     title: "Inventory",

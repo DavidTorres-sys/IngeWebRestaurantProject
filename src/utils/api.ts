@@ -21,12 +21,12 @@ const makeJSONPost = (url: string, data: any, options: { headers: { [key: string
 };
 
 export const getAuth0Token = async () => {
-  const url = `https://appbasemj.us.auth0.com/oauth/token`;
+  const url = `https://dev-xarv5ryn3fxcb3yp.us.auth0.com/oauth/token`;
   const headers = { 'content-type': 'application/json' };
   const body = {
     client_id: 'V0eG3Tb8wiDXpD9MQtwwncnrXesiSzaj',
     client_secret: 'ioPd3tXU00-qnxTCmm4nRrZ9XZhKLLYbT0Gv1YokQBjKUlQTF7yBfWk9kSQf6sCo',
-    audience: 'https://appbasemj.us.auth0.com/api/v2/',
+    audience: 'https://dev-xarv5ryn3fxcb3yp.us.auth0.com/api/v2/',
     grant_type: 'client_credentials',
   };
   return makeJSONPost(url, body, { headers });
@@ -34,7 +34,7 @@ export const getAuth0Token = async () => {
 
 //TODO: cambiar URL POR NUESTRA URL
 export const createAuth0User = async (data: any, token: any, tokenType: any) => {
-  const url = `https://appbasemj.us.auth0.com/api/v2/users`;
+  const url = `https://dev-xarv5ryn3fxcb3yp.us.auth0.com/api/v2`;
   const headers = {
     Authorization: `${tokenType} ${token}`,
   };

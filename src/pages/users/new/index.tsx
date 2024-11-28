@@ -17,6 +17,7 @@ import { nanoid } from 'nanoid';
 import { useMutation } from '@apollo/client';
 import { CREATE_USER } from '@/utils/gql/mutations/user';
 
+
 const FormSchema = z.object({
   username: z.string().min(2, {
     message: 'Username must be at least 2 characters.',
@@ -46,6 +47,7 @@ export default function InputForm() {
         password,
       }).then(async (res) => {
         const user = res.usuario;
+        console.log(res);
         await createUserMutation({
           variables: {
             data: {
@@ -70,38 +72,47 @@ export default function InputForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
-        <FormField
-          control={form.control}
-          name='username'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder='shadcn' {...field} />
-              </FormControl>
-              <FormDescription>This is your public display name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder='shadcn' {...field} />
-              </FormControl>
-              <FormDescription>This is your public display name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type='submit'>Submit</Button>
-      </form>
-    </Form>
+    <div className="flex w-[900px] h-96 items-center justify-center shadow-lg">
+      {/* Left Section */}
+      <div className="w-1/2 bg-cover bg-center relative" style={{ backgroundImage: "url('/img/login.png')" }}>
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center pl-12">
+          <h1 className="text-white text-4xl font-bold">RestoRec Restaurant</h1>
+          <p className="text-white text-2xl mt-4">Hello, Welcome!</p>
+        </div>
+      </div>
+      <div className="w-1/2 flex justify-center items-center bg-white">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='w-2/3 space-y-6'>
+            <FormField
+              control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder='shadcn' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder='shadcn' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type='submit'>Submit</Button>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }
