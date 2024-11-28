@@ -9,9 +9,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
-} from "@/components/molecules/SidebarSection";
+} from "@/components/ui/sidebar";
 import { UserDetailsSidebar } from "@/components/molecules/UserDetailsSidebar";
-import { Button } from "@/components/atoms/Button";
+import { Button } from "@/components/ui/button";
 import { SIDEBAR_ITEMS } from "@/utils/sidebarItems";
 
 type SidebarProps = {

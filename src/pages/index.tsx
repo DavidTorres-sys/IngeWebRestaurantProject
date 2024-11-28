@@ -1,7 +1,7 @@
 import {
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/molecules/SidebarSection";
+} from "@/components/ui/sidebar"; 
 import { AppSidebar } from "@/components/organisms/Sidebar";
 import { useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";

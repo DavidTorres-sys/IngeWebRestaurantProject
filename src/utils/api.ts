@@ -32,6 +32,7 @@ export const getAuth0Token = async () => {
   return makeJSONPost(url, body, { headers });
 };
 
+//TODO: cambiar URL POR NUESTRA URL
 export const createAuth0User = async (data: any, token: any, tokenType: any) => {
   const url = `https://appbasemj.us.auth0.com/api/v2/users`;
   const headers = {
