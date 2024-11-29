@@ -1,9 +1,19 @@
-import React from 'react'
+import Profile from '@/components/organisms/Profile';
+import { useSession } from 'next-auth/react';
+import ReactLoading from 'react-loading';
 
-const index = () => {
+export default function Users() {
+  const { data: session, status } = useSession();
+
+  console.log(session);
+
+  // Ensure session contains userId
+  const userId = session?.user?.id;
+
   return (
-    <div>index</div>
-  )
+    <div>
+      {/* Pass userId to Profile component */}
+      <Profile userId={userId} />
+    </div>
+  );
 }
-
-export default index

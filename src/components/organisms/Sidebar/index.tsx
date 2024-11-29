@@ -1,4 +1,6 @@
 import { signOut } from "next-auth/react";
+import { Home, User, Users, Archive, ShoppingCart, Ham } from "lucide-react";
+import Link from 'next/link';
 import {
   Sidebar,
   SidebarContent,
@@ -14,25 +16,26 @@ import { UserDetailsSidebar } from "@/components/molecules/UserDetailsSidebar";
 import { Button } from "@/components/ui/button";
 import { SIDEBAR_ITEMS } from "@/utils/sidebarItems";
 
+
 type SidebarProps = {
+  id?: string;
   role: string;
   name: string;
   image: string | null;
 }
-
-const Index = ({ role, name, image }: SidebarProps) => {
+const Index = ({ id, role, name, image }: SidebarProps) => {
   const logout = async () => {
     try {
-      await signOut({
-        // TODO: Update the callback URL
-        callbackUrl: "/",
-      });
+      await signOut();
     } catch (error) {
       console.error("Error during logout:", error);
     }
   };
-  // Filter sidebar items based on role
-  const filteredItems = SIDEBAR_ITEMS.filter((item) => item.roles.includes(role));
+
+  // Dynamically update the Profile URL
+  const sidebarItemsWithProfile = SIDEBAR_ITEMS.map(item =>
+    item.title === "Profile" ? { ...item, url: `/users/${id}` } : item
+  );
 
   return (
     <Sidebar>
@@ -48,16 +51,18 @@ const Index = ({ role, name, image }: SidebarProps) => {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {filteredItems.map((item) => (
-                  <SidebarMenuItem className="mt-2 mb-2" key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {sidebarItemsWithProfile
+                  .filter(item => item.roles.includes(role))
+                  .map((item, index) => (
+                    <SidebarMenuItem key={index}>
+                      <SidebarMenuButton asChild>
+                        <Link href={item.url} className="flex items-center gap-3">
+                          <item.icon className="w-5 h-5" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -18,7 +18,6 @@ export const GET_USER = gql`
       name
       email
       image
-      role
     }
   }
 `;

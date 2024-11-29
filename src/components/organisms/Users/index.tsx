@@ -27,6 +27,7 @@ type User = {
   name: string;
   email: string;
   image: string;
+  role: string;
 };
 
 const PAGE_SIZE = 10; // Define how many items you want per page
@@ -41,10 +42,10 @@ export default function Component() {
   });
 
   const users = data ? data.users : [];
-  const totalUsers = data ? data.totalUsers : 0; // Assuming totalUsers is part of the response
+  const totalUsers = data ? data.totalUsers : 0;
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page); // Update the page when user clicks on a pagination control
+    setCurrentPage(page);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -86,7 +87,7 @@ export default function Component() {
                 <TableCell className="hidden md:table-cell">{user.email}</TableCell>
                 <TableCell className="hidden sm:table-cell">
                   <Badge className="text-xs" variant="secondary">
-                    Fulfilled
+                    {user.role}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
