@@ -3,7 +3,7 @@ import { Home, User, Users, Archive, ShoppingCart, Ham } from "lucide-react";
 export const SIDEBAR_ITEMS = [
   {
     title: "Home",
-    url: "",
+    url: "/",
     icon: Home,
     roles: ["ADMIN", "USER"], // Accessible by both admin and user
   },
@@ -21,19 +21,19 @@ export const SIDEBAR_ITEMS = [
   },
   {
     title: "Inventory",
-    url: "/users/[id]",
+    url: "/inventory",
     icon: Archive,
     roles: ["ADMIN"], // Only accessible by admin
   },
   {
     title: "Orders",
-    url: "#",
+    url: "/orders",
     icon: ShoppingCart,
     roles: ["ADMIN", "USER"], // Accessible by both admin and user
   },
   {
     title: "Menu",
-    url: "#",
+    url: "/menu",
     icon: Ham,
     roles: ["ADMIN", "USER"], // Accessible by both admin and user
   },
