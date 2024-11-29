@@ -35,7 +35,7 @@ const Profile = ({ userId }: ProfileProps) => {
       <hr className="border-t-4 border-red-600 mb-6" />
 
       {/* Profile Card */}
-      <Card className="shadow-lg rounded-lg overflow-hidden h-96">
+      <Card className="shadow-2xl rounded-lg overflow-hidden h-96 border-black">
         <CardContent className="flex flex-row">
           {/* Left Section (Avatar & Name) */}
           <div className="w-1/3 bg-red-600 flex flex-col items-center justify-center text-white p-6 h-96">

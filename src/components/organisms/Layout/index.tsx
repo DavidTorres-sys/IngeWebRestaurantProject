@@ -20,11 +20,13 @@ export default function Home({ children }: any) {
   const userId = session?.user.id;
 
   return (
-    <div>
+    <div className="flex h-screen w-screen bg-white">
       <SidebarProvider>
+        {/* Sidebar */}
         <AppSidebar role={userRole} image={UserImage} name={userName} id={userId} />
         <SidebarTrigger />
-        <main className="flex items-center justify-center w-screen h-screen">
+        {/* Main Content */}
+        <main className="flex-1 h-full max-h-full overflow-y-auto p-6">
           {children}
         </main>
       </SidebarProvider>
