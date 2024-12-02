@@ -93,6 +93,7 @@ model Product {
   price                Float
   special_instructions String?
   category_id          String
+  image_url            String?        
 
   category             Category       @relation(fields: [category_id], references: [id])
   productOrders        ProductOrder[]
