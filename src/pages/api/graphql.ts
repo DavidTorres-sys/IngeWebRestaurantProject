@@ -10,6 +10,8 @@ import prisma from '@/config/prisma';
 import Cors from 'micro-cors';
 import { IncomingMessage, ServerResponse } from 'http';
 
+import { GQLEnums } from '-/prisma/generated/graphql/enums';
+
 const cors = Cors({
   allowMethods: ['POST', 'OPTIONS', 'GET', 'HEAD'],
 });
@@ -27,7 +29,7 @@ export const config = {
 const functionHandler = async (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
   const apolloServer = new ApolloServer({
     context: (): Context => ({ prisma }),
-    typeDefs: [...types, ...customTypes],
+    typeDefs: [...types, ...customTypes, GQLEnums],
     resolvers: [...resolvers, ...customResolvers],
     persistedQueries: false,
     cache: 'bounded',
