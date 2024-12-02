@@ -16,7 +16,7 @@ export default function Home({ children }: any) {
 
   const userName = session?.user.name || "Guest";
   const UserImage = session?.user.image || null;
-  const userRole = session?.user.role || "ADMIN";
+  const userRole = session?.user.role || "USER";
   const userId = session?.user.id;
 
   return (

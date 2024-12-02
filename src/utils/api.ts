@@ -1,49 +1,79 @@
-const makePost = (url: string, body: string, options: { headers?: { [key: string]: string } }) => {
-  const headers = options.headers || {};
-  return fetch(url, {
-    body,
-    headers,
-    method: 'POST',
-  }).then((res) => {
-    if (res.statusText === 'No Content') {
-      return res;
-    }
-    return res.json();
-  });
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const makePost = (
+	url: string,
+	body: string,
+	options: { headers?: Record<string, string> }
+) => {
+	const headers = options.headers || {};
+	return fetch(url, {
+		body,
+		headers,
+		method: 'POST',
+	}).then((res) => {
+		if (res.statusText === 'No Content') {
+			return res;
+		}
+		return res.json();
+	});
 };
 
-const makeJSONPost = (url: string, data: any, options: { headers: { [key: string]: string } }) => {
-  const body = JSON.stringify(data);
-  const headers = options.headers || {};
-  headers['Content-Type'] = 'application/json';
-
-  return makePost(url, body, { headers });
+const makeJSONPost = (
+	url: string,
+	data: any,
+	options: { headers: Record<string, string> }
+) => {
+	const body = JSON.stringify(data);
+	const headers = options.headers || {};
+	headers['Content-Type'] = 'application/json';
+	return makePost(url, body, { headers });
 };
 
 export const getAuth0Token = async () => {
-  const url = `https://dev-xarv5ryn3fxcb3yp.us.auth0.com/oauth/token`;
-  const headers = { 'content-type': 'application/json' };
-  const body = {
-    client_id: 'V0eG3Tb8wiDXpD9MQtwwncnrXesiSzaj',
-    client_secret: 'ioPd3tXU00-qnxTCmm4nRrZ9XZhKLLYbT0Gv1YokQBjKUlQTF7yBfWk9kSQf6sCo',
-    audience: 'https://dev-xarv5ryn3fxcb3yp.us.auth0.com/api/v2/',
-    grant_type: 'client_credentials',
-  };
-  return makeJSONPost(url, body, { headers });
+	try {
+		const response = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				client_id: process.env.AUTH0_CLIENT_ID,
+				client_secret: process.env.AUTH0_CLIENT_SECRET,
+				audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+				grant_type: 'client_credentials',
+			}),
+		});
+
+		if (!response.ok) {
+			const errorDetails = await response.json();
+			throw new Error(`Failed to fetch token: ${errorDetails.error_description}`);
+		}
+
+		const text = await response.text();
+
+		const data = JSON.parse(text);
+		return data.access_token;
+	} catch (error) {
+		console.error('Error fetching Auth0 token:', error);
+		throw error;
+	}
 };
 
-//TODO: cambiar URL POR NUESTRA URL
-export const createAuth0User = async (data: any, token: any, tokenType: any) => {
-  const url = `https://dev-xarv5ryn3fxcb3yp.us.auth0.com/api/v2`;
-  const headers = {
-    Authorization: `${tokenType} ${token}`,
-  };
-  const body = data;
-  return makeJSONPost(url, body, { headers });
+
+export const createAuth0User = async (
+	data: any,
+	token: any,
+	tokenType: any
+) => {
+	const url = `https://${process.env.AUTH0_DOMAIN}/api/v2/users`;
+	const headers = {
+		Authorization: `${tokenType} ${token}`,
+	};
+	const body = data;
+	return makeJSONPost(url, body, { headers });
 };
 
 export const createUser = (data: any) => {
-  const url = `/api/auth0`;
-  const body = { data };
-  return makeJSONPost(url, body, { headers: {} });
+	const url = `/api/auth0`;
+	const body = { data };
+	return makeJSONPost(url, body, { headers: {} });
 };

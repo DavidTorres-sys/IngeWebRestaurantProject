@@ -19,8 +19,8 @@ export const UPDATE_USER = gql`
 export const CREATE_USER = gql`
   mutation CreateUserCustom($data: userCreateInputCustom) {
     createUserCustom(data: $data) {
-      name
       id
+      name
     }
   }
 `;

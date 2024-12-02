@@ -7,6 +7,7 @@ export const GET_ALL_USERS = gql`
       name
       email
       image
+      role
     }
   }
 `;
@@ -18,6 +19,7 @@ export const GET_USER = gql`
       name
       email
       image
+      role
     }
   }
 `;
