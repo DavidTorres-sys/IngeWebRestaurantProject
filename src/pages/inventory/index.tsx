@@ -77,35 +77,41 @@ const Inventory = () => {
   };
   const [isPending, startTransition] = useTransition();
 
+  const categoryOptions = ["Entries", "Pastas", "Pizzas"];
+  const categoryValues = [
+    "958bf6c9-cd06-4c4f-8306-d6afbf398f15",
+    "187f1f83-14a0-4079-9526-f236b2ce5892",
+    "a1746167-3a8c-4113-ad97-98d52580c906",
+  ];
+
   const onSubmit = async (data: any) => {
     startTransition(async () => {
       let uploadedImageUrl = "";
-  
+
       // Subir la imagen primero
       if (imageUrl.length > 0) {
         try {
           const imageFile = await convertBlobUrlToFile(imageUrl[0]);
-          
+
           const { imageUrl: newImageUrl, error } = await uploadImage({
             file: imageFile,
             bucket: "product-images",
           });
-          
+
           if (error) {
             console.error("Error uploading image:", error);
             return; // Detener el proceso si hay un error al cargar la imagen
           }
-  
+
           // Establecer la URL de la imagen cargada
           uploadedImageUrl = newImageUrl; // Guardamos la URL de la imagen cargada
           setImageUpload(uploadedImageUrl); // Opcional: Si deseas actualizar algún estado con la URL
-  
         } catch (uploadError) {
           console.error("Error converting or uploading image:", uploadError);
           return; // Detener el proceso si hay un error durante la conversión o carga
         }
       }
-  
+
       // Ahora que tenemos la URL de la imagen, enviamos los datos del producto
       try {
         await createProduct({
@@ -129,8 +135,6 @@ const Inventory = () => {
       }
     });
   };
-  
-  
 
   const handleDeleteProduct = async (productId: string) => {
     try {
@@ -254,21 +258,31 @@ const Inventory = () => {
                 )}
               </div>
               <div>
-                <label htmlFor="category_id">Category ID</label>
-                <input
+                <label htmlFor="category_id">Category</label>
+                <select
                   {...register("category_id")}
-                  type="text"
                   id="category_id"
                   className={`w-full border-2 ${
                     errors.category_id ? "border-red-500" : "border-primary"
                   } rounded-lg p-2`}
-                />
+                >
+                  <option value="">Select a category</option>
+                  {categoryOptions.map((option, index) => (
+                    <option
+                      key={categoryValues[index]}
+                      value={categoryValues[index]}
+                    >
+                      {option}
+                    </option>
+                  ))}
+                </select>
                 {errors.category_id && (
                   <p className="text-red-500">
                     {String(errors.category_id.message)}
                   </p>
                 )}
               </div>
+
               <div>
                 <label htmlFor="image_url">Image</label>
                 <input
