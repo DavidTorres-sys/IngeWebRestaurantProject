@@ -13,3 +13,12 @@ export const CREATE_PRODUCT = gql`
     }
   }
 `;
+
+export const DELETE_PRODUCT = gql`
+  mutation DeleteProduct($where: ProductWhereUniqueInput!) {
+    deleteProduct(where: $where) {
+      id
+      name
+    }
+  }
+`;

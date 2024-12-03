@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useMutation, useQuery } from "@apollo/client";
-import { CREATE_PRODUCT } from "@/utils/gql/mutations/product";
+import { CREATE_PRODUCT, DELETE_PRODUCT } from "@/utils/gql/mutations/product";
 import { GET_PRODUCTS } from "@/utils/queries/products";
 
 import { convertBlobUrlToFile } from "@/lib/convert";
@@ -43,6 +43,10 @@ const Inventory = () => {
   });
 
   const [createProduct, { loading, error }] = useMutation(CREATE_PRODUCT);
+  const [deleteProduct, { loading: deleteLoading, error: deleteError }] =
+    useMutation(DELETE_PRODUCT, {
+      refetchQueries: [{ query: GET_PRODUCTS }], 
+    });
 
   const {
     loading: queryLoading,
@@ -133,6 +137,20 @@ const Inventory = () => {
     closeModal();
   };
 
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      await deleteProduct({
+        variables: {
+          where: { id: productId }, // Envolviendo el id dentro del objeto 'where'
+        },
+      });
+      console.log(`Product ${productId} deleted successfully`);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+  
+
   return (
     <>
       <div>
@@ -153,6 +171,7 @@ const Inventory = () => {
                 key={product.id}
                 imageUrl={product.image_url}
                 title={product.name}
+                onDelete={() => handleDeleteProduct(product.id)}
               />
             ))}
         </div>
