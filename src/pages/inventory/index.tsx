@@ -3,7 +3,7 @@
 import UnderLineTitle from "@/components/atoms/UnderLineTitle";
 import InventoryCard from "@/components/molecules/InventoryCard";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { ChangeEvent, useRef, useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +13,9 @@ import { useMutation } from "@apollo/client";
 import { CREATE_PRODUCT } from "@/utils/gql/mutations/product";
 import { supabase } from "@/lib/supabaseClient";
 
+import {convertBlobUrlToFile} from '@/lib/convert';
+import { set } from "date-fns";
+import { uploadImage } from "@/supabase/storage/client";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
@@ -28,6 +31,8 @@ const productSchema = z.object({
 
 const Inventory = () => {
   const [inventoryModal, setInventoryModal] = useState(false);
+
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -46,53 +51,46 @@ const Inventory = () => {
     setInventoryModal(true);
   };
 
-  const onSubmit = async (data: any) => {
-    try {
-      let imageUrl = null;
-  
-      if (data.image_url && data.image_url[0]) {
-        const file = data.image_url[0];
-  
-        // Sube la imagen al bucket
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("product-images")
-          .upload(`products/${file.name}`, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
-  
-          if (uploadError) {
-            console.error("Error uploading image details:", uploadError.message);
-            throw new Error(`Failed to upload image: ${uploadError.message}`);
-          }
-          
-  
-        // Genera la URL pública de la imagen
-        const { data: publicUrlData } = supabase.storage
-          .from("product-images")
-          .getPublicUrl(`products/${file.name}`);
-        imageUrl = publicUrlData.publicUrl;
-      }
-  
-      // Envía los datos al servidor
-      await createProduct({
-        variables: {
-          input: {
-            name: data.name,
-            description: data.description,
-            price: data.price,
-            category_id: data.category_id,
-            image_url: imageUrl,
-          },
-        },
-      });
-  
-      closeModal();
-    } catch (err) {
-      console.error("Error:", err);
+  const [imageUrl, setImageUrl] = useState<string[]>([]);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      const newImageUrl = URL.createObjectURL(filesArray[0]);
+
+      setImageUrl([newImageUrl]);
     }
   };
-  
+  const [isPending, startTransition] = useTransition();
+
+  const onSubmit = (data: any) => {
+    startTransition(async () => {
+      let urls = [];
+
+      for(const url of imageUrl) {
+        const imageFile = await convertBlobUrlToFile(url);
+
+        const {imageUrl, error} = await uploadImage({
+          file: imageFile,
+          bucket: 'product-images'
+        });
+
+        if(error) {
+          console.error(error);
+          return;
+        }
+
+        urls.push(imageUrl);
+
+        console.log(urls)
+
+        setImageUrl([]);
+      } 
+    });
+
+    closeModal();
+  };
+
   return (
     <>
       <div>
@@ -176,11 +174,20 @@ const Inventory = () => {
               <div>
                 <label htmlFor="image_url">Image</label>
                 <input
-                  {...register("image_url")}
+                  onChange={handleImageChange}
                   type="file"
                   id="image_url"
                   className="w-full border-2 border-primary rounded-lg p-2"
+                  ref={imageInputRef}
                 />
+
+                {imageUrl.length > 0 && (
+                  <img
+                    src={imageUrl[0]}
+                    alt="Product Image"
+                    className="w-20 h-20 object-cover"
+                  />
+                )}
               </div>
               <div className="flex justify-end">
                 <Button
