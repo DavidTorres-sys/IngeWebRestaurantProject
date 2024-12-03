@@ -18,7 +18,6 @@ const options: NextAuthOptions = {
           expires: "desc",
         },
       })) as any;
-      console.log(newSession);
       return {
         ...session,
         user: newSession?.user,

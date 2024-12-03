@@ -59,7 +59,6 @@ export default function InputForm() {
         password,
       }).then(async (res) => {
         const user = res.usuario;
-        console.log(user);
         await createUserMutation({
           variables: {
             data: {
