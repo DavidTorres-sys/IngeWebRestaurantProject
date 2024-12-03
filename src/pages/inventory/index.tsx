@@ -45,7 +45,7 @@ const Inventory = () => {
   const [createProduct, { loading, error }] = useMutation(CREATE_PRODUCT);
   const [deleteProduct, { loading: deleteLoading, error: deleteError }] =
     useMutation(DELETE_PRODUCT, {
-      refetchQueries: [{ query: GET_PRODUCTS }], 
+      refetchQueries: [{ query: GET_PRODUCTS }],
     });
 
   const {
@@ -79,63 +79,58 @@ const Inventory = () => {
 
   const onSubmit = async (data: any) => {
     startTransition(async () => {
-      let urls = [];
-
-      for (const url of imageUrl) {
-        const imageFile = await convertBlobUrlToFile(url);
-
-        const { imageUrl, error } = await uploadImage({
-          file: imageFile,
-          bucket: "product-images",
-        });
-
-        if (error) {
-          console.error(error);
-          return;
+      let uploadedImageUrl = "";
+  
+      // Subir la imagen primero
+      if (imageUrl.length > 0) {
+        try {
+          const imageFile = await convertBlobUrlToFile(imageUrl[0]);
+          
+          const { imageUrl: newImageUrl, error } = await uploadImage({
+            file: imageFile,
+            bucket: "product-images",
+          });
+          
+          if (error) {
+            console.error("Error uploading image:", error);
+            return; // Detener el proceso si hay un error al cargar la imagen
+          }
+  
+          // Establecer la URL de la imagen cargada
+          uploadedImageUrl = newImageUrl; // Guardamos la URL de la imagen cargada
+          setImageUpload(uploadedImageUrl); // Opcional: Si deseas actualizar algún estado con la URL
+  
+        } catch (uploadError) {
+          console.error("Error converting or uploading image:", uploadError);
+          return; // Detener el proceso si hay un error durante la conversión o carga
         }
-
-        urls.push(imageUrl);
-        setImageUpload(imageUrl);
-
-        console.log(urls);
-
-        setImageUrl([]);
+      }
+  
+      // Ahora que tenemos la URL de la imagen, enviamos los datos del producto
+      try {
+        await createProduct({
+          variables: {
+            data: {
+              name: data.name,
+              description: data.description,
+              price: data.price,
+              category_id: data.category_id,
+              image_url: uploadedImageUrl, // Usar la URL de la imagen cargada
+              special_instructions: data.special_instructions || "",
+            },
+          },
+        });
+        console.log("Product added successfully");
+      } catch (error) {
+        console.error("Error creating product:", error);
+      } finally {
+        setImageUpload(""); // Limpiar el estado de la URL de la imagen
+        closeModal(); // Cerrar el modal
       }
     });
-
-    console.log("Data being sent:", {
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      category_id: data.category_id,
-      image_url: imageUpload,
-      special_instructions: null,
-    });
-
-    try {
-      // Envía los datos al servidor
-      await createProduct({
-        variables: {
-          data: {
-            name: data.name,
-            description: data.description,
-            price: data.price,
-            category_id: data.category_id,
-            image_url: imageUpload,
-            special_instructions: data.special_instructions || "",
-          },
-        },
-      });
-    } catch (error) {
-      console.log("Error create product ----");
-
-      console.error(error);
-    }
-
-    setImageUpload("");
-
-    closeModal();
   };
+  
+  
 
   const handleDeleteProduct = async (productId: string) => {
     try {
@@ -149,7 +144,6 @@ const Inventory = () => {
       console.error("Error deleting product:", error);
     }
   };
-  
 
   return (
     <>
@@ -160,20 +154,50 @@ const Inventory = () => {
           </Button>
         </div>
         <UnderLineTitle title="Entries" />
-        {/* <InventoryCard /> */}
-
         <div className="flex flex-wrap gap-3">
           {queryLoading && <p>Loading...</p>}
           {queryError && <p>Error: {queryError.message}</p>}
           {productsData &&
-            productsData.products.map((product: any) => (
-              <InventoryCard
-                key={product.id}
-                imageUrl={product.image_url}
-                title={product.name}
-                onDelete={() => handleDeleteProduct(product.id)}
-              />
-            ))}
+            productsData.products.map((product: any) =>
+              product.category_id === "958bf6c9-cd06-4c4f-8306-d6afbf398f15" ? (
+                <InventoryCard
+                  key={product.id}
+                  imageUrl={product.image_url}
+                  title={product.name}
+                  onDelete={() => handleDeleteProduct(product.id)}
+                />
+              ) : null
+            )}
+        </div>
+
+        <UnderLineTitle title="Pastas" />
+        <div>
+          {productsData &&
+            productsData.products.map((product: any) =>
+              product.category_id === "187f1f83-14a0-4079-9526-f236b2ce5892" ? (
+                <InventoryCard
+                  key={product.id}
+                  imageUrl={product.image_url}
+                  title={product.name}
+                  onDelete={() => handleDeleteProduct(product.id)}
+                />
+              ) : null
+            )}
+        </div>
+
+        <UnderLineTitle title="Pizzas" />
+        <div>
+          {productsData &&
+            productsData.products.map((product: any) =>
+              product.category_id === "a1746167-3a8c-4113-ad97-98d52580c906" ? (
+                <InventoryCard
+                  key={product.id}
+                  imageUrl={product.image_url}
+                  title={product.name}
+                  onDelete={() => handleDeleteProduct(product.id)}
+                />
+              ) : null
+            )}
         </div>
       </div>
       {inventoryModal && (
@@ -254,14 +278,6 @@ const Inventory = () => {
                   className="w-full border-2 border-primary rounded-lg p-2"
                   ref={imageInputRef}
                 />
-
-                {imageUrl.length > 0 && (
-                  <img
-                    src={imageUrl[0]}
-                    alt="Product Image"
-                    className="w-20 h-20 object-cover"
-                  />
-                )}
               </div>
               <div className="flex justify-end">
                 <Button
