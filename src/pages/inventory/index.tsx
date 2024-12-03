@@ -5,69 +5,194 @@ import InventoryCard from "@/components/molecules/InventoryCard";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-const Inventory = () => {
-  const [inventoryModal, setInventoryModal] = useState(true);
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
+import { useMutation } from "@apollo/client";
+import { CREATE_PRODUCT } from "@/utils/gql/mutations/product";
+import { supabase } from "@/lib/supabaseClient";
+
+
+const productSchema = z.object({
+  name: z.string().min(1, "Name is required").max(50, "Name is too long"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(200, "Description is too long"),
+  price: z.number().positive("Price must be greater than 0"),
+  special_instructions: z.string().optional(),
+  category_id: z.string().min(1, "Category is required"),
+  image_url: z.any().optional(), // Handle as file input
+});
+
+const Inventory = () => {
+  const [inventoryModal, setInventoryModal] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(productSchema),
+  });
+
+  const [createProduct, { loading, error }] = useMutation(CREATE_PRODUCT);
+
+  const closeModal = () => setInventoryModal(false);
+  const openModal = () => {
+    reset();
+    setInventoryModal(true);
+  };
+
+  const onSubmit = async (data: any) => {
+    try {
+      let imageUrl = null;
+  
+      if (data.image_url && data.image_url[0]) {
+        const file = data.image_url[0];
+  
+        // Sube la imagen al bucket
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("product-images")
+          .upload(`products/${file.name}`, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+  
+          if (uploadError) {
+            console.error("Error uploading image details:", uploadError.message);
+            throw new Error(`Failed to upload image: ${uploadError.message}`);
+          }
+          
+  
+        // Genera la URL pública de la imagen
+        const { data: publicUrlData } = supabase.storage
+          .from("product-images")
+          .getPublicUrl(`products/${file.name}`);
+        imageUrl = publicUrlData.publicUrl;
+      }
+  
+      // Envía los datos al servidor
+      await createProduct({
+        variables: {
+          input: {
+            name: data.name,
+            description: data.description,
+            price: data.price,
+            category_id: data.category_id,
+            image_url: imageUrl,
+          },
+        },
+      });
+  
+      closeModal();
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
+  
   return (
     <>
       <div>
         <div className="w-full flex justify-end">
-          <Button className="text-xs text-white">Add Product</Button>
+          <Button className="text-xs text-white" onClick={openModal}>
+            Add Product
+          </Button>
         </div>
-
         <UnderLineTitle title="Entries" />
         <InventoryCard />
       </div>
       {inventoryModal && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="w-[500px] h-[500px] bg-white rounded-2xl p-5">
-            <h2 className="text-2xl font-semibold">Add Product</h2>
-            <div className="w-full flex gap-3 mt-5">
-              <div className="w-1/2">
+          <div className="relative w-[500px] bg-white rounded-2xl p-5">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-4xl text-gray-600 hover:text-gray-800"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-semibold mb-5">Add Product</h2>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
                 <label htmlFor="name">Name</label>
                 <input
+                  {...register("name")}
                   type="text"
                   id="name"
-                  className="w-full border-2 border-primary rounded-lg p-2"
+                  className={`w-full border-2 ${
+                    errors.name ? "border-red-500" : "border-primary"
+                  } rounded-lg p-2`}
                 />
+                {errors.name && typeof errors.name.message === "string" && (
+                  <p className="text-red-500">{errors.name.message}</p>
+                )}
               </div>
-              <div className="w-1/2">
+              <div>
+                <label htmlFor="description">Description</label>
+                <textarea
+                  {...register("description")}
+                  id="description"
+                  className={`w-full border-2 ${
+                    errors.description ? "border-red-500" : "border-primary"
+                  } rounded-lg p-2`}
+                ></textarea>
+                {errors.description &&
+                  typeof errors.description.message === "string" && (
+                    <p className="text-red-500">{errors.description.message}</p>
+                  )}
+              </div>
+              <div>
                 <label htmlFor="price">Price</label>
                 <input
-                  type="text"
+                  {...register("price", { valueAsNumber: true })}
+                  type="number"
                   id="price"
-                  className="w-full border-2 border-primary rounded-lg p-2"
+                  className={`w-full border-2 ${
+                    errors.price ? "border-red-500" : "border-primary"
+                  } rounded-lg p-2`}
                 />
+                {errors.price && typeof errors.price.message === "string" && (
+                  <p className="text-red-500">{errors.price.message}</p>
+                )}
               </div>
-            </div>
-            <div className="w-full flex gap-3 mt-5">
-              <div className="w-1/2">
-                <label htmlFor="quantity">Quantity</label>
+              <div>
+                <label htmlFor="category_id">Category ID</label>
                 <input
+                  {...register("category_id")}
                   type="text"
-                  id="quantity"
-                  className="w-full border-2 border-primary rounded-lg p-2"
+                  id="category_id"
+                  className={`w-full border-2 ${
+                    errors.category_id ? "border-red-500" : "border-primary"
+                  } rounded-lg p-2`}
                 />
+                {errors.category_id && (
+                  <p className="text-red-500">
+                    {String(errors.category_id.message)}
+                  </p>
+                )}
               </div>
-              <div className="w-1/2">
-                <label htmlFor="image">Image</label>
+              <div>
+                <label htmlFor="image_url">Image</label>
                 <input
+                  {...register("image_url")}
                   type="file"
-                  id="image"
+                  id="image_url"
                   className="w-full border-2 border-primary rounded-lg p-2"
                 />
               </div>
-            </div>
-            <div className="w-full mt-5">
-              <label htmlFor="description">Description</label>
-              <textarea
-                id="description"
-                className="w-full border-2 border-primary rounded-lg p-2"
-              ></textarea>
-            </div>
-            <div className="w-full flex justify-end mt-5">
-              <Button className="text-xs text-white">Add Product</Button>
-            </div>
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  className="text-xs text-white"
+                  disabled={loading}
+                >
+                  {loading ? "Adding..." : "Add Product"}
+                </Button>
+              </div>
+              {error && <p className="text-red-500">Error: {error.message}</p>}
+            </form>
           </div>
         </div>
       )}
