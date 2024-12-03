@@ -9,12 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_PRODUCT } from "@/utils/gql/mutations/product";
-import { supabase } from "@/lib/supabaseClient";
+import { GET_PRODUCTS } from "@/utils/queries/products";
 
-import {convertBlobUrlToFile} from '@/lib/convert';
-import { set } from "date-fns";
+import { convertBlobUrlToFile } from "@/lib/convert";
 import { uploadImage } from "@/supabase/storage/client";
 
 const productSchema = z.object({
@@ -26,7 +25,7 @@ const productSchema = z.object({
   price: z.number().positive("Price must be greater than 0"),
   special_instructions: z.string().optional(),
   category_id: z.string().min(1, "Category is required"),
-  image_url: z.any().optional(), // Handle as file input
+  image_url: z.any().optional(),
 });
 
 const Inventory = () => {
@@ -44,6 +43,16 @@ const Inventory = () => {
   });
 
   const [createProduct, { loading, error }] = useMutation(CREATE_PRODUCT);
+
+  const {
+    loading: queryLoading,
+    error: queryError,
+    data: productsData,
+  } = useQuery(GET_PRODUCTS, {
+    onError: (error) => {
+      console.error("GraphQL Query Error:", error);
+    },
+  });
 
   const closeModal = () => setInventoryModal(false);
   const openModal = () => {
@@ -68,15 +77,15 @@ const Inventory = () => {
     startTransition(async () => {
       let urls = [];
 
-      for(const url of imageUrl) {
+      for (const url of imageUrl) {
         const imageFile = await convertBlobUrlToFile(url);
 
-        const {imageUrl, error} = await uploadImage({
+        const { imageUrl, error } = await uploadImage({
           file: imageFile,
-          bucket: 'product-images'
+          bucket: "product-images",
         });
 
-        if(error) {
+        if (error) {
           console.error(error);
           return;
         }
@@ -84,10 +93,10 @@ const Inventory = () => {
         urls.push(imageUrl);
         setImageUpload(imageUrl);
 
-        console.log(urls)
+        console.log(urls);
 
         setImageUrl([]);
-      } 
+      }
     });
 
     console.log("Data being sent:", {
@@ -96,12 +105,10 @@ const Inventory = () => {
       price: data.price,
       category_id: data.category_id,
       image_url: imageUpload,
-      special_instructions: null
+      special_instructions: null,
     });
-    
 
     try {
-
       // Envía los datos al servidor
       await createProduct({
         variables: {
@@ -115,10 +122,9 @@ const Inventory = () => {
           },
         },
       });
-      
     } catch (error) {
       console.log("Error create product ----");
-      
+
       console.error(error);
     }
 
@@ -136,7 +142,20 @@ const Inventory = () => {
           </Button>
         </div>
         <UnderLineTitle title="Entries" />
-        <InventoryCard />
+        {/* <InventoryCard /> */}
+
+        <div className="flex flex-wrap gap-3">
+          {queryLoading && <p>Loading...</p>}
+          {queryError && <p>Error: {queryError.message}</p>}
+          {productsData &&
+            productsData.products.map((product: any) => (
+              <InventoryCard
+                key={product.id}
+                imageUrl={product.image_url}
+                title={product.name}
+              />
+            ))}
+        </div>
       </div>
       {inventoryModal && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
