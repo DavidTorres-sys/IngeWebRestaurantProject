@@ -29,7 +29,14 @@ export const SIDEBAR_ITEMS = [
     title: "Orders",
     url: "/orders",
     icon: ShoppingCart,
-    roles: ["ADMIN", "USER"], // Accessible by both admin and user
+    roles: ["ADMIN"], // Accessible by both admin
+  }
+  ,
+  {
+    title: "My Orders",
+    url: "/my-orders",
+    icon: ShoppingCart,
+    roles: ["USER"], // Accessible by user
   },
   {
     title: "Menu",
