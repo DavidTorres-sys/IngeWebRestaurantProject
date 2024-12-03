@@ -52,6 +52,7 @@ const Inventory = () => {
   };
 
   const [imageUrl, setImageUrl] = useState<string[]>([]);
+  const [imageUpload, setImageUpload] = useState("");
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -63,7 +64,7 @@ const Inventory = () => {
   };
   const [isPending, startTransition] = useTransition();
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     startTransition(async () => {
       let urls = [];
 
@@ -81,12 +82,47 @@ const Inventory = () => {
         }
 
         urls.push(imageUrl);
+        setImageUpload(imageUrl);
 
         console.log(urls)
 
         setImageUrl([]);
       } 
     });
+
+    console.log("Data being sent:", {
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      category_id: data.category_id,
+      image_url: imageUpload,
+      special_instructions: null
+    });
+    
+
+    try {
+
+      // Envía los datos al servidor
+      await createProduct({
+        variables: {
+          data: {
+            name: data.name,
+            description: data.description,
+            price: data.price,
+            category_id: data.category_id,
+            image_url: imageUpload,
+            special_instructions: data.special_instructions || "",
+          },
+        },
+      });
+      
+    } catch (error) {
+      console.log("Error create product ----");
+      
+      console.error(error);
+    }
+
+    setImageUpload("");
 
     closeModal();
   };
