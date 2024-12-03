@@ -4,9 +4,6 @@ import ReactLoading from 'react-loading';
 
 export default function Users() {
   const { data: session, status } = useSession();
-
-  console.log(session);
-
   // Ensure session contains userId
   const userId = session?.user?.id;
 

@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 export const SearchBar = () => {
   return (
     <Form>
-      <Card className="p-4 shadow-2xl rounded-xl flex items-center space-x-4 gap-4 content-end">
+      <Card className="p-4 shadow-md rounded-xl flex items-center space-x-4 gap-4 content-end">
         {/* Search Input */}
         <div className="flex-1">
           <label htmlFor="search" className="block text-sm font-medium text-gray-700">

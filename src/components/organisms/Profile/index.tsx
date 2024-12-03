@@ -3,29 +3,19 @@ import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import React from 'react';
-import { GET_USER } from '@/utils/queries/users';
-import { useQuery } from '@apollo/client';
+import { useSession } from 'next-auth/react';
 
 type ProfileProps = {
   userId?: string; // Pass the user ID as a prop
 };
 
 const Profile = ({ userId }: ProfileProps) => {
-  const { data, loading, error } = useQuery(GET_USER, {
-    variables: { userId },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  if (loading) {
-    return <div className="text-center py-6">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-600 py-6">Error: {error.message}</div>;
-  }
-
-  // Destructure data from the query
-  const { id, name, email, image, role } = data.user;
+  const { data: session, status } = useSession();
+  
+  const name = session?.user?.name || '';
+  const email = session?.user?.email || '';
+  const image = session?.user?.image || '';
+  const role = session?.user?.role || '';
 
   return (
     <div className="mx-auto w-[900px] py-8">
@@ -35,7 +25,7 @@ const Profile = ({ userId }: ProfileProps) => {
       <hr className="border-t-4 border-red-600 mb-6" />
 
       {/* Profile Card */}
-      <Card className="shadow-2xl rounded-lg overflow-hidden h-96 border-black">
+      <Card className="shadow-2xl rounded-lg overflow-hidden h-96">
         <CardContent className="flex flex-row">
           {/* Left Section (Avatar & Name) */}
           <div className="w-1/3 bg-red-600 flex flex-col items-center justify-center text-white p-6 h-96">

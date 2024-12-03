@@ -20,7 +20,6 @@ import { GET_ALL_USERS } from '@/utils/queries/users';
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
 import { SearchBar } from '@/components/molecules/SearchBar';
 
 type User = {
@@ -36,7 +35,6 @@ const PAGE_SIZE = 10; // Define how many items you want per page
 export default function Component() {
   const [currentPage, setCurrentPage] = React.useState(1);
 
-  // Pass variables to the query for pagination
   const { data, loading, error } = useQuery(GET_ALL_USERS, {
     variables: { page: currentPage, pageSize: PAGE_SIZE },
     fetchPolicy: 'cache-and-network',

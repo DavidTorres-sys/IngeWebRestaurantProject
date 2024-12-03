@@ -1,5 +1,3 @@
-import { getServerSession } from 'next-auth/next';
-import { options } from '@/pages/api/auth/[...nextauth]';
 import { createAuth0User, getAuth0Token } from '@/utils/api';
 
 const Auth0 = async (req: any, res: any) => {
@@ -7,18 +5,20 @@ const Auth0 = async (req: any, res: any) => {
     const { data } = req.body;
     let userData;
     try {
-      const { access_token: accessToken, token_type: tokenType } = await getAuth0Token().then(
-        (resToken) => resToken
-      );
+      const accessToken = await getAuth0Token();
       data.connection = 'Username-Password-Authentication';
-      userData = await createAuth0User(data, accessToken, tokenType).then((resUser) => resUser);
+      userData = await createAuth0User(data, accessToken, 'Bearer').then((resUser) => resUser);
     } catch (error) {
-      req.status(409).send(`Error getting Auth0 token ${error}`);
+      res.status(409).send(`Error getting Auth0 token ${error}`);
     }
-    if (!Object.keys(userData).includes('statusCode')) {
+
+    // Check if userData is defined before using Object.keys
+    if (userData && !Object.keys(userData).includes('statusCode')) {
       return res.status(200).json({ usuario: userData });
-    } else {
+    } else if (userData) {
       return res.status(userData.statusCode).json({ error: userData.message });
+    } else {
+      return res.status(500).send('An unexpected error occurred.');
     }
   } else {
     res.status(405).send('Method not allowed');
