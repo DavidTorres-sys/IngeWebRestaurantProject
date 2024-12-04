@@ -20,6 +20,17 @@ query Order {
       email
       name
     }
+    productOrders {
+      include_cutlery
+      product_subtotal
+      total_product
+      product {
+        description
+        name
+        price
+        special_instructions
+      }
+    }
   }
 }
 `;

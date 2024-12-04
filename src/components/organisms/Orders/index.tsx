@@ -46,6 +46,18 @@ type Order = {
       name: string;
     };
   }[];
+  productOrders: {
+    id: string;
+    quantity: number;
+    product_id: string;
+    order_id: string;
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      special_intructions: string;
+    };
+  }[];
 };
 
 const PAGE_SIZE = 10;
@@ -65,6 +77,8 @@ export default function Component() {
   });
 
   const orders: Order[] = data ? data.orders : [];
+
+  console.log(orders);
 
   const handleStatusChange = async () => {
     if (selectedOrder && selectedStatus) {
@@ -177,6 +191,16 @@ export default function Component() {
                               <p>
                                 <strong>User:</strong> {selectedOrder.user.name} ({selectedOrder.user.email})
                               </p>
+                              <p>
+                                <strong>Products:</strong>
+                              </p>
+                              <ul className="list-disc pl-5">
+                                {selectedOrder.productOrders.map((history) => (
+                                  <li key={history.id}>
+                                    {history.product.name} - {history.product.special_intructions}
+                                  </li>
+                                ))}
+                              </ul>
                               <p>
                                 <strong>Order History:</strong>
                               </p>

@@ -4,6 +4,9 @@ import { TotalPrice } from '@/components/molecules/TotalPrice';
 import { GET_PRODUCTS } from "@/utils/gql/queries/products";
 import { useQuery } from '@apollo/client';
 import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { DollarSign } from "lucide-react";
 
 export default function MenuComponent() {
   const { loading, error, data } = useQuery(GET_PRODUCTS, {
@@ -48,6 +51,13 @@ export default function MenuComponent() {
         {/* TotalPrice component now reflects the dynamic total */}
         <TotalPrice totalPrice={totalPrice} />
       </div>
+      <div className="mt-5 flex justify-end">
+        <Button className="border border-red-500 bg-white text-black hover:bg-primary hover:text-white shadow-md rounded-full">
+          <DollarSign className="w-4 h-4" />
+          <Link href="/my-orders">Pay</Link>
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
         {data?.products.map((product: any) => (
           <MenuCard
