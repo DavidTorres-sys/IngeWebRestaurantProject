@@ -1,6 +1,6 @@
 import { MenuCard } from '@/components/molecules/MenuCard';
 import { SearchBar } from '@/components/molecules/SearchBar';
-import { GET_PRODUCTS } from "@/utils/queries/products";
+import { GET_PRODUCTS } from "@/utils/gql/queries/products";
 import { useQuery } from '@apollo/client';
 
 export default function MenuComponent() {

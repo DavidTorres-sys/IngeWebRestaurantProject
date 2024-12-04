@@ -11,10 +11,11 @@ import { z } from "zod";
 
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_PRODUCT, DELETE_PRODUCT } from "@/utils/gql/mutations/product";
-import { GET_PRODUCTS } from "@/utils/queries/products";
+import { GET_PRODUCTS } from "@/utils/gql/queries/products";
 
 import { convertBlobUrlToFile } from "@/lib/convert";
 import { uploadImage } from "@/supabase/storage/client";
+import { useSession } from "next-auth/react";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
@@ -29,6 +30,8 @@ const productSchema = z.object({
 });
 
 const Inventory = () => {
+  const { data: session, status } = useSession();
+  if (session?.user.role !== 'ADMIN') return <div>Access Denied</div>;
   const [inventoryModal, setInventoryModal] = useState(false);
 
   const imageInputRef = useRef<HTMLInputElement>(null);

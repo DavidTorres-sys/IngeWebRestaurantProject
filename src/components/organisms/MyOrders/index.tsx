@@ -2,7 +2,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -14,34 +13,37 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { useQuery } from '@apollo/client';
-import { GET_ALL_USERS } from '@/utils/gql/queries/users';
+
 import React from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/molecules/SearchBar';
 
 type User = {
   id: string;
-  name: string;
-  email: string;
-  image: string;
-  role: string;
+  total_price: number;
+  address: string;
+  orderHistoryId: string;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+  };
 };
 
-const PAGE_SIZE = 10; // Define how many items you want per page
-
+const PAGE_SIZE = 10;
 export default function Component() {
   const [currentPage, setCurrentPage] = React.useState(1);
 
-  const { data, loading, error } = useQuery(GET_ALL_USERS, {
-    variables: { page: currentPage, pageSize: PAGE_SIZE },
+  const { data, loading, error } = useQuery(GET_ALL_ORDERS_BY_USER, {
     fetchPolicy: 'cache-and-network',
   });
 
-  const users = data ? data.users : [];
-  const totalUsers = data ? data.totalUsers : 0;
+
+  const orders = data ? data.orders : [];
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -51,45 +53,42 @@ export default function Component() {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div>
+    <div className='mr-5'>
       <SearchBar />
-      <Card className='shadow-2xl rounded-lg mt-10 '>
+      <Card className='shadow-2xl rounded-lg mt-10'>
         <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>Users</CardTitle>
-          <Link className="flex text-right" href="/users/new">
-            <Button className="text-xs text-white">Add User</Button>
-          </Link>
+          <CardTitle>Orders</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader className='bg-primary'>
               <TableRow>
                 <TableHead className="text-white hidden md:table-cell">#</TableHead>
-                <TableHead className="text-white hidden md:table-cell">Image</TableHead>
-                <TableHead className="text-white hidden sm:table-cell">User</TableHead>
-                <TableHead className="text-white hidden sm:table-cell">Email</TableHead>
-                <TableHead className="text-white hidden md:table-cell">Role</TableHead>
+                <TableHead className="text-white hidden md:table-cell">Address</TableHead>
+                <TableHead className="text-white hidden sm:table-cell">Creation Date</TableHead>
+                <TableHead className="text-white hidden sm:table-cell">Price</TableHead>
+                <TableHead className="text-white hidden md:table-cell">User</TableHead>
                 <TableHead className="text-white hidden md:table-cell">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user: User, index: number) => (
-                <TableRow key={user.id} className="bg-accent">
+              {orders.map((orders: User, index: number) => (
+                <TableRow key={orders.id} className="bg-accent">
                   <TableCell>
                     {PAGE_SIZE * (currentPage - 1) + index + 1}
                   </TableCell>
                   <TableCell>
-                    <Avatar>
-                      <AvatarImage src={user.image} alt={user.name} />
-                    </Avatar>
+                  <TableCell className="hidden sm:table-cell">
+                    <div className="font-medium">{orders.address}</div>
+                  </TableCell>                    
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <div className="font-medium">{user.name}</div>
+                    <div className="font-medium">{orders.created_at}</div>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                  <TableCell className="hidden md:table-cell">{orders.total_price}</TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <Badge className="text-xs" variant="secondary">
-                      {user.role}
+                      {orders.user.name}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
