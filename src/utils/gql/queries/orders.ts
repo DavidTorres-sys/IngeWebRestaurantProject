@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 export const GET_ALL_ORDERS = gql`
 query Order {
   orders {
+    id
     address
     created_at
     total_price

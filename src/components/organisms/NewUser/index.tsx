@@ -52,7 +52,6 @@ export default function InputForm() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const password = nanoid();
-    console.log(password);
     try {
       await createUser({
         name: data.name,

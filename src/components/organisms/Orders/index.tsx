@@ -13,12 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_ALL_ORDERS } from '@/utils/gql/queries/orders';
+import { CREATE_ORDER_HISTORY } from '@/utils/gql/mutations/orders';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from "@/hooks/use-toast";
 
 type Order = {
   id: string;
@@ -48,18 +51,50 @@ type Order = {
 const PAGE_SIZE = 10;
 
 export default function Component() {
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = React.useState(1);
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null);
+  const [selectedStatus, setSelectedStatus] = React.useState<string | null>(null);
 
   const { data, loading, error } = useQuery(GET_ALL_ORDERS, {
     fetchPolicy: 'cache-and-network',
   });
 
+  const [updateOrderStatus] = useMutation(CREATE_ORDER_HISTORY, {
+    refetchQueries: [{ query: GET_ALL_ORDERS }],
+  });
+
   const orders: Order[] = data ? data.orders : [];
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleStatusChange = async () => {
+    if (selectedOrder && selectedStatus) {
+      console.log(selectedOrder.id, selectedStatus, new Date().toISOString());
+      try {
+        await updateOrderStatus({
+          variables: {
+            data: {
+              order_id: selectedOrder.id,
+              status_id: selectedStatus,
+              changed_at: new Date().toISOString(),
+            }
+          },
+        });
+        toast({
+          title: "Status Changed Successfully",
+          description: `Status changed to ${selectedStatus}.`,
+        });
+        setSelectedOrder(null);
+      } catch (err) {
+        console.error(err);
+        toast({
+          title: "Error Changing Status",
+          description: "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -110,7 +145,7 @@ export default function Component() {
                         {lastHistory?.status.name || 'Unknown'}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
@@ -121,7 +156,7 @@ export default function Component() {
                             View
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className='bg-white'>
+                        <DialogContent  className="bg-white">
                           <DialogHeader>
                             <DialogTitle>Order Details</DialogTitle>
                           </DialogHeader>
@@ -152,6 +187,29 @@ export default function Component() {
                                   </li>
                                 ))}
                               </ul>
+                              <div>
+                                <strong>Change Status:</strong>
+                                <Select
+                                  onValueChange={(value) => setSelectedStatus(value)}
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select a status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="1">Pending</SelectItem>
+                                    <SelectItem value="05683864-9c94-4a2d-aadf-94457c2c989d">IN PROGRESS</SelectItem>
+                                    <SelectItem value="Delivered">Delivered</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <Button
+                                className="mt-4"
+                                variant="default"
+                                onClick={handleStatusChange}
+                                disabled={!selectedStatus}
+                              >
+                                Update Status
+                              </Button>
                             </div>
                           )}
                         </DialogContent>
