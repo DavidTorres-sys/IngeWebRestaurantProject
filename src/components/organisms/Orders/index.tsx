@@ -145,7 +145,7 @@ export default function Component() {
                         {lastHistory?.status.name || 'Unknown'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
