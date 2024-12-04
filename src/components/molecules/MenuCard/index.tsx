@@ -11,9 +11,10 @@ type MenuCardProps = {
   description: string;
   price: number;
   specialIntructions: string;
+  imageUrl: string;
 };
 
-export const MenuCard = ({ id, name, description, price }: MenuCardProps) => {
+export const MenuCard = ({ id, name, description, price, imageUrl }: MenuCardProps) => {
   const [quantity, setQuantity] = useState(1);
   const [cutleryOption, setCutleryOption] = useState("");
 
@@ -25,7 +26,7 @@ export const MenuCard = ({ id, name, description, price }: MenuCardProps) => {
           {/* Trigger the modal on click */}
           <CardHeader className="cursor-pointer p-4">
             <img
-              src={`/images/${id}.jpg`} // Replace with appropriate image path
+              src={imageUrl} // Replace with appropriate image path
               alt={name}
               className="w-full h-48 object-cover rounded-t-lg"
             />
