@@ -70,7 +70,7 @@ export default function Component() {
     if (selectedOrder && selectedStatus) {
       console.log(selectedOrder.id, selectedStatus, new Date().toISOString());
       try {
-        await updateOrderStatus({
+        const response = await updateOrderStatus({
           variables: {
             data: {
               order_id: selectedOrder.id,
@@ -80,8 +80,8 @@ export default function Component() {
           },
         });
         toast({
-          title: "Status Changed Successfully",
-          description: `Status changed to ${selectedStatus}.`,
+          title: `Status Changed to ${response.data.createOrderHistory.status.name}`,
+          description: `${response.data.createOrderHistory.status.description}.`,
         });
         setSelectedOrder(null);
       } catch (err) {
@@ -196,9 +196,9 @@ export default function Component() {
                                     <SelectValue placeholder="Select a status" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="1">Pending</SelectItem>
-                                    <SelectItem value="05683864-9c94-4a2d-aadf-94457c2c989d">IN PROGRESS</SelectItem>
-                                    <SelectItem value="Delivered">Delivered</SelectItem>
+                                    <SelectItem value="ae59b871-eb1c-46bc-94e9-51be7eb484e7">Pending</SelectItem>
+                                    <SelectItem value="05683864-9c94-4a2d-aadf-94457c2c989d">In Progress</SelectItem>
+                                    <SelectItem value="17d5c4f4-fabb-4a43-a368-7107004347c4">Delivered</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
