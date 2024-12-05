@@ -5,7 +5,7 @@
 Este proyecto implementa una aplicación web para la gestión de pedidos en un restaurante, desarrollada utilizando Next.js, GraphQL, Prisma, Apollo Server, NextAuth y Auth0. La aplicación permite autenticar usuarios, crear perfiles de usuario con roles (administrador y usuario común), gestionar un inventario de platos, ver un menú interactivo, realizar pedidos, y consultar una lista de pedidos y usuarios.
 
 **USUARIO ADMIN**: 
-  - **username:** admin@admin.com
+  - **username:** adminuser@example.com
   - **password:** Admin123$%&
 ----
 
